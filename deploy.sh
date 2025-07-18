@@ -5,9 +5,11 @@
 set -e
 
 # Globals
-NAMESPACE="osclimate"
+# NAMESPACE="osclimate"
+NAMESPACE="dataproduct"
 
-KIND_CLUSTER="osclimate-cluster"
+# KIND_CLUSTER="osclimate-cluster"
+KIND_CLUSTER="zaga-cluster"
 
 AIRFLOW_RELEASE="airflow"
 # RELEASE_NAME="airflow"
@@ -32,6 +34,12 @@ TRINO_IMAGE="osclimate/trino"
 TRINO_TAG="1.0"
 
 
+DATA_IMAGE="quay.io/zagaos/dataproduct-dashboard"
+DATA_TAG="v1"
+
+DATA_API_IMAGE="quay.io/zagaos/dataproduct-client-api"
+DATA_API_TAG="v3"
+
 CURRENT_DIR=$(pwd)
 
 # Check for required tools
@@ -49,11 +57,11 @@ check_dependencies() {
 create_namespace() {
     echo "Creating namespace $NAMESPACE..."
     kubectl create namespace $NAMESPACE || echo "Namespace $NAMESPACE already exists."
-    kubectl apply -f $CURRENT_DIR/deployment/airflow/service-account.yaml -n $NAMESPACE
+    kubectl apply -f $CURRENT_DIR/deployment/service-account.yaml -n $NAMESPACE
     
     # kubectl apply -f $CURRENT_DIR/deployment/airflow/airflow-role.yaml
     # kubectl apply -f $CURRENT_DIR/deployment/airflow/airflow-rolebinding.yaml
-    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+    # kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
 }
 
@@ -250,6 +258,79 @@ deploy_minio() {
 
 
 }
+
+deploy_dataproduct_ui(){
+
+     echo "Deploying deploy_dataproduct_UI()..."
+
+    kubectl apply -f $CURRENT_DIR/deployment/dataproduct-catlog-ui/deployment.yaml -n $NAMESPACE 
+    kubectl apply -f $CURRENT_DIR/deployment/dataproduct-catlog-ui/service.yaml -n $NAMESPACE 
+
+    
+    
+    # Wait for at least one Airflow pod to exist
+    echo "Waiting for dataproduct UI pod to appear in namespace $NAMESPACE..."
+
+    DATA_PORT=5173
+    DATA_PORT_FWD=5173
+
+    echo "Checking for running minio pod..."
+    DATA_POD_NAME=$(kubectl get pods -n $NAMESPACE -l app=iceberg-catalog-ui -o jsonpath='{.items[0].metadata.name}')
+
+    if [ -z "$DATA_POD_NAME" ]; then
+      echo "No minio pod found. Exiting."
+      exit 1
+    fi
+
+    echo "Waiting for pod $DATA_POD_NAME to be ready..."
+    while [[ $(kubectl get pod $DATA_POD_NAME -n $NAMESPACE -o jsonpath='{.status.phase}') != "Running" ]]; do
+      echo "Pod $DATA_POD_NAME is not ready yet. Retrying..."
+      sleep 5
+    done
+
+    echo "Starting port-forwarding for pod $DATA_POD_NAME..."
+    nohup kubectl port-forward $DATA_POD_NAME $DATA_PORT_FWD:$DATA_PORT -n $NAMESPACE > port-forward-minio.log 2>&1 &
+
+    echo "Port-forwarding started. Access dataprodcut dashboard at http://localhost:$DATA_PORT_FWD"
+
+
+}
+deploy_dataproduct_api(){
+
+    echo "Deploying deploy_dataproduct_api()..."
+
+    kubectl apply -f $CURRENT_DIR/deployment/dataproduct-client-api/deployment.yaml -n $NAMESPACE 
+    kubectl apply -f $CURRENT_DIR/deployment/dataproduct-client-api/service.yaml -n $NAMESPACE 
+
+    
+    
+    # Wait for at least one Airflow pod to exist
+    echo "Waiting for dataproduct api  pod to appear in namespace $NAMESPACE..."
+
+    DATA_API_PORT=8003
+    DATA_API_PORT_FWD=8000
+
+    echo "Checking for running dataproduct api pod..."
+    DATA_API_POD_NAME=$(kubectl get pods -n $NAMESPACE -l app=dataproduct-client-api -o jsonpath='{.items[0].metadata.name}')
+
+    if [ -z "$DATA_API_POD_NAME" ]; then
+      echo "No dataproduct api pod found. Exiting."
+      exit 1
+    fi
+
+    echo "Waiting for pod $DATA_API_POD_NAME to be ready..."
+    while [[ $(kubectl get pod $DATA_API_POD_NAME -n $NAMESPACE -o jsonpath='{.status.phase}') != "Running" ]]; do
+      echo "Pod $DATA_API_POD_NAME is not ready yet. Retrying..."
+      sleep 5
+    done
+
+    echo "Starting port-forwarding for pod $DATA_API_POD_NAME..."
+    nohup kubectl port-forward $DATA_POD_NAME $DATA_API_PORT_FWD:$DATA_API_PORT -n $NAMESPACE > port-forward-minio.log 2>&1 &
+
+    echo "Port-forwarding started. Access data product api at http://localhost:$DATA_API_PORT_FWD"
+
+
+}
 # Verify Deployment
 verify_deployment() {
     echo "Verifying  deployment..."
@@ -275,6 +356,12 @@ load_trino_image(){
 }
 load_minio_image(){
     kind load docker-image $MINIO_IMAGE:$MINIO_TAG -n $KIND_CLUSTER
+
+}
+load_data_product_image(){
+    kind load docker-image $DATA_API_IMAGE:$DATA_API_TAG -n $KIND_CLUSTER
+    kind load docker-image $DATA_IMAGE:$DATA_TAG -n $KIND_CLUSTER
+
 
 }
 
@@ -333,6 +420,13 @@ delete_minio(){
   kubectl delete svc minio-service -n $NAMESPACE
 
 }
+delete_dataproduct(){
+
+  kubectl delete deployment iceberg-catalog-ui -n $NAMESPACE
+  kubectl delete svc iceberg-catalog-ui -n $NAMESPACE
+  kubectl delete deployment dataproduct-client-api -n $NAMESPACE
+  kubectl delete svc dataproduct-client-api -n $NAMESPACE
+}
 # main
 main() {
     check_dependencies
@@ -349,18 +443,21 @@ main() {
                     verify_deployment
                     ;;
                 trino)
-<<<<<<< HEAD
-                    # load_trino_image
-=======
+
                     load_trino_image
                     deploy_hive_metastore
->>>>>>> refs/remotes/origin/main
                     deploy_trino
                     verify_deployment
                     ;;
                 minio)
-                    # load_minio_image
+                    load_minio_image
                     deploy_minio
+                    verify_deployment
+                    ;;
+                dataproduct)
+                    load_data_product_image
+                    deploy_dataproduct_api
+                    deploy_dataproduct_ui
                     verify_deployment
                     ;;
                 all)
@@ -391,21 +488,27 @@ main() {
                 minio)
                     delete_minio
                     ;;
+                dataproduct)
+                    
+                    delete_dataproduct
+                    
+                    ;;
                 all)
                     echo "Deleting all deployments..."
                     delete_airflow
                     delete_trino
                     delete_minio
+                    delete_dataproduct
 
                     ;;
                 *)
-                    echo "Usage: $0 delete {airflow|trino|minio|all}"
+                    echo "Usage: $0 delete {airflow|trino|minio|dataproduct|all}"
                     exit 1
                     ;;
             esac
             ;;
         *)
-            echo "Usage: $0 {deploy|delete} {airflow|trino|minio|all}"
+            echo "Usage: $0 {deploy|delete} {airflow|trino|minio|dataproduct|all}"
             exit 1
             ;;
     esac

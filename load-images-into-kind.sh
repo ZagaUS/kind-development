@@ -2,12 +2,20 @@
 set -euo pipefail
 
 # Name of your kind cluster
-KIND_CLUSTER_NAME="osclimate-cluster"
+# KIND_CLUSTER_NAME="osclimate-cluster"
+
+NAMESPACE="dataproduct"
+
+# KIND_CLUSTER="osclimate-cluster"
+KIND_CLUSTER_NAME="zaga-cluster"
 # Images to reload
 IMAGES=(
-  "osclimate/airflow:2.9.3"
   "osclimate/trino:1.0"
   "osclimate/minio:1.0"
+  "quay.io/zagaos/dataproduct-dashboard:v1"
+  "quay.io/zagaos/dataproduct-client-api:v3"
+
+
 )
 
 

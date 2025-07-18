@@ -14,11 +14,11 @@ MINIO_TAG=osclimate/minio:1.0
 
 docker buildx ls | grep multiarch || docker buildx create --name multiarch --use
 
-docker buildx build  \
-    --platform linux/arm64 \
-    --tag "$AIRFLOW_TAG" \
-    --load \
-    .
+# docker buildx build  \
+#     --platform linux/arm64 \
+#     --tag "$AIRFLOW_TAG" \
+#     --load \
+#     .
 
 docker buildx build  \
     -f Dockerfile-trino \
@@ -33,6 +33,10 @@ docker buildx build  \
     --tag "$MINIO_TAG" \
     --load \
     .
+docker pull quay.io/zagaos/dataproduct-dashboard:v1
+
+docker pull quay.io/zagaos/dataproduct-client-api:v3
+
 
 # docker buildx build  \
 #     -f Dockerfile-trino \
