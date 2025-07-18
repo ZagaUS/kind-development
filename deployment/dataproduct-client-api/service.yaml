@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dataproduct-client-api
+spec:
+  selector:
+    app: dataproduct-client-api
+  ports:
+    - protocol: TCP
+      port: 8003
+      targetPort: 8000
+  type: NodePort  # Use ClusterIP if internal-only; LoadBalancer for cloud
