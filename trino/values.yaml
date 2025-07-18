@@ -1,45 +1,16 @@
-replicaCount: 1
-
 image:
   repository: trinodb/trino
-  tag: "438"  # latest stable
+  tag: latest
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 9090
 
-resources:
-  limits:
-    cpu: "1000m"
-    memory: "2Gi"
-  requests:
-    cpu: "500m"
-    memory: "1Gi"
+env:
+  - name: TRINO_USER
+    value: "admin"
+  - name: TRINO_CATALOG
+    value: "iceberg"
 
-nodeSelector: {}
-tolerations: []
-affinity: {}
-
-ingress:
-  enabled: false
-  className: ""  # specify ingressClassName if required (e.g., nginx)
-  annotations: {}
-  hosts:
-    - host: trino.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80  # Optional
-
-serviceAccount:
-  create: true
-  name: ""  # Leave blank to use default generated name
-
+resources: {}
