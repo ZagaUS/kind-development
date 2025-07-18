@@ -1,0 +1,6 @@
+apiVersion: v2
+name: trino
+description: A Helm chart for deploying Trino
+type: application
+version: 0.1.0
+appVersion: "476"  # or latest Trino version
