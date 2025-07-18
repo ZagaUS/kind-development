@@ -18,11 +18,11 @@ spec:
         image: postgres:14
         env:
         - name: POSTGRES_DB
-          value: airflow
+          value: iceberg_metadata
         - name: POSTGRES_USER
-          value: airflow
+          value: iceberg_user
         - name: POSTGRES_PASSWORD
-          value: airflow123$
+          value: iceberg_pass
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5432
