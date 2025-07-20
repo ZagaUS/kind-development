@@ -6,7 +6,7 @@ spec:
   selector:
     app: dataproduct-client-api
   ports:
-    - protocol: TCP
-      port: 8003
-      targetPort: 8000
-  type: NodePort  # Use ClusterIP if internal-only; LoadBalancer for cloud
+  - protocol: TCP
+    port: 8003
+    targetPort: 8000
+  type: ClusterIP # Use ClusterIP if internal-only; LoadBalancer for cloud

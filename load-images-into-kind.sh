@@ -12,7 +12,7 @@ KIND_CLUSTER_NAME="zaga-cluster"
 IMAGES=(
   "osclimate/trino:1.0"
   "osclimate/minio:1.0"
-  "quay.io/zagaos/dataproduct-dashboard:v1"
+  "quay.io/zagaos/dataproduct-dashboard:v6"
   "quay.io/zagaos/dataproduct-client-api:v3"
 
 

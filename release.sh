@@ -33,7 +33,7 @@ docker buildx build  \
     --tag "$MINIO_TAG" \
     --load \
     .
-docker pull quay.io/zagaos/dataproduct-dashboard:v1
+docker pull quay.io/zagaos/dataproduct-dashboard:latest
 
 docker pull quay.io/zagaos/dataproduct-client-api:v3
 

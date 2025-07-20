@@ -16,10 +16,10 @@ spec:
     spec:
       containers:
       - name: iceberg-catalog-ui
-        image: quay.io/zagaos/dataproduct-dashboard:v1
-        command: [ "npm", "run", "dev" ]
+        image: quay.io/zagaos/dataproduct-dashboard:latest
+        # command: [ "npm", "run", "dev" ]
         ports:
-        - containerPort: 5173
+        - containerPort: 8080
       #   volumeMounts:
       #   - name: source-code
       #     mountPath: /app

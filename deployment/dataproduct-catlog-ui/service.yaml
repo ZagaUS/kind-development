@@ -6,7 +6,7 @@ spec:
   selector:
     app: iceberg-catalog-ui
   ports:
-    - protocol: TCP
-      port: 5173
-      targetPort: 5173
-  type: NodePort  # Or LoadBalancer if needed in cloud
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP # Or LoadBalancer if needed in cloud
