@@ -33,12 +33,16 @@ MINIO_TAG="1.0"
 TRINO_IMAGE="osclimate/trino"
 TRINO_TAG="1.0"
 
+ICEBERG_IMAGE="quay.io/zagaos/iceberg-custom-rest"
+ICEBERG_TAG="1.0"
 
 DATA_IMAGE="quay.io/zagaos/dataproduct-dashboard"
 DATA_TAG="v1"
 
 DATA_API_IMAGE="quay.io/zagaos/dataproduct-client-api"
 DATA_API_TAG="v3"
+
+ICEBERG_RELEASE=""
 
 CURRENT_DIR=$(pwd)
 
@@ -166,6 +170,13 @@ deploy_trino_helm() {
         --set images.tag=$TRINO_TAG \
         -f $TRINO_VALUES_FILE
 }
+
+deploy_iceberg_helm() {
+    echo "Deploying iceberg with Helm..."
+    helm install $ICEBERG_RELEASE $CURRENT_DIR/deployment/iceberg-chart \
+        --namespace $NAMESPACE 
+}
+
 
 # Deploy trino
 deploy_trino() {
@@ -358,6 +369,10 @@ load_minio_image(){
     kind load docker-image $MINIO_IMAGE:$MINIO_TAG -n $KIND_CLUSTER
 
 }
+load_iceberg_image(){
+    kind load docker-image $ICEBERG_IMAGE:$ICEBERG_TAG -n $KIND_CLUSTER
+
+}
 load_data_product_image(){
     kind load docker-image $DATA_API_IMAGE:$DATA_API_TAG -n $KIND_CLUSTER
     kind load docker-image $DATA_IMAGE:$DATA_TAG -n $KIND_CLUSTER
@@ -427,6 +442,10 @@ delete_dataproduct(){
   kubectl delete deployment dataproduct-client-api -n $NAMESPACE
   kubectl delete svc dataproduct-client-api -n $NAMESPACE
 }
+delete_iceberg(){
+
+  helm install $ICEBERG_RELEASE --namespace $NAMESPACE 
+}
 # main
 main() {
     check_dependencies
@@ -436,12 +455,12 @@ main() {
     case "$1" in
         deploy)
             case "$2" in
-                airflow)
-                    # load_airflow_image
-                    deploy_postgres
-                    deploy_airflow
-                    verify_deployment
-                    ;;
+                # airflow)
+                #     # load_airflow_image
+                #     deploy_postgres
+                #     deploy_airflow
+                #     verify_deployment
+                #     ;;
                 trino)
 
                     load_trino_image
@@ -454,6 +473,12 @@ main() {
                     deploy_minio
                     verify_deployment
                     ;;
+                iceberg)
+                    load_iceberg_image
+                    deploy_iceberg_helm
+                    verify_deployment
+                    ;;
+                
                 dataproduct)
                     load_data_product_image
                     deploy_dataproduct_api
@@ -462,13 +487,15 @@ main() {
                     ;;
                 all)
                     # load_airflow_image
-                    deploy_postgres
-                    deploy_airflow
                     load_trino_image
-                    deploy_hive_metastore
                     deploy_trino
                     load_minio_image
                     deploy_minio
+                    load_iceberg_image
+                    deploy_iceberg_helm
+                    load_data_product_image
+                    deploy_dataproduct_api
+                    deploy_dataproduct_ui
                     verify_deployment
                     ;;
                 *)
@@ -479,14 +506,17 @@ main() {
             ;;
         delete)
             case "$2" in
-                airflow)
-                    delete_airflow
-                    ;;
+                # airflow)
+                #     delete_airflow
+                #     ;;
                 trino)
                     delete_trino
                     ;;
                 minio)
                     delete_minio
+                    ;;
+                iceberg)
+                   delete_iceberg
                     ;;
                 dataproduct)
                     
@@ -499,7 +529,7 @@ main() {
                     delete_trino
                     delete_minio
                     delete_dataproduct
-
+                    delete_iceberg
                     ;;
                 *)
                     echo "Usage: $0 delete {airflow|trino|minio|dataproduct|all}"
