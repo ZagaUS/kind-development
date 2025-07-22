@@ -34,9 +34,13 @@ docker buildx build  \
     --load \
     .
 docker pull quay.io/zagaos/dataproduct-dashboard:latest
+docker pull quay.io/zagaos/dataproduct-dashboard:v9
+
 
 docker pull quay.io/zagaos/dataproduct-client-api:v3
 
+
+docker pull quay.io/zagaos/iceberg-custom-rest:1.0
 
 # docker buildx build  \
 #     -f Dockerfile-trino \

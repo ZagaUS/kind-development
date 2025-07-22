@@ -16,19 +16,15 @@ spec:
     spec:
       containers:
       - name: iceberg-catalog-ui
-        image: quay.io/zagaos/dataproduct-dashboard:latest
+        image: quay.io/zagaos/dataproduct-dashboard:v9
         # command: [ "npm", "run", "dev" ]
         ports:
         - containerPort: 8080
-      #   volumeMounts:
-      #   - name: source-code
-      #     mountPath: /app
-      #   - name: node-modules
-      #     mountPath: /app/node_modules
-      # volumes:
-      # - name: source-code
-      #   hostPath:
-      #     path: ./dataproduct-dashboard
-      #     type: Directory
-      # - name: node-modules
-      #   emptyDir: {} # use emptyDir or hostPath if you want to persist modules
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/config
+          name: data-product-cm
+      volumes:
+      - name: data-product-cm
+        configMap:
+          defaultMode: 420
+          name: data-product-config

@@ -37,12 +37,12 @@ ICEBERG_IMAGE="quay.io/zagaos/iceberg-custom-rest"
 ICEBERG_TAG="1.0"
 
 DATA_IMAGE="quay.io/zagaos/dataproduct-dashboard"
-DATA_TAG="v1"
+DATA_TAG="latest"
 
 DATA_API_IMAGE="quay.io/zagaos/dataproduct-client-api"
 DATA_API_TAG="v3"
 
-ICEBERG_RELEASE=""
+ICEBERG_RELEASE="iceberg"
 
 CURRENT_DIR=$(pwd)
 
@@ -173,7 +173,7 @@ deploy_trino_helm() {
 
 deploy_iceberg_helm() {
     echo "Deploying iceberg with Helm..."
-    helm install $ICEBERG_RELEASE $CURRENT_DIR/deployment/iceberg-chart \
+    helm install $ICEBERG_RELEASE $CURRENT_DIR/deployment/iceberg-chart/ \
         --namespace $NAMESPACE 
 }
 
@@ -444,7 +444,7 @@ delete_dataproduct(){
 }
 delete_iceberg(){
 
-  helm install $ICEBERG_RELEASE --namespace $NAMESPACE 
+  helm uninstall $ICEBERG_RELEASE --namespace $NAMESPACE 
 }
 # main
 main() {
@@ -525,7 +525,6 @@ main() {
                     ;;
                 all)
                     echo "Deleting all deployments..."
-                    delete_airflow
                     delete_trino
                     delete_minio
                     delete_dataproduct
