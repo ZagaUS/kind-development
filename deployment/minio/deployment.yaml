@@ -19,7 +19,7 @@ spec:
         emptyDir: {}
       containers:
       - name: minio
-        image: osclimate/minio:1.0
+        image: zagaos/minio:2.0
         args:
         - server
         - /data
@@ -38,15 +38,31 @@ spec:
           protocol: TCP
         - containerPort: 9001
           protocol: TCP
+
+      - name: configure-mc
+        image: zagaos/minio:2.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          until curl -s http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+          mc alias set minio http://localhost:9000 minioAdmin minio1234
+          mc mb --ignore-existing minio/warehouse
+          tail -f /dev/null
       # initContainers:
       # - name: configure-mc
-      #   image: osclimate/minio:1.0
+      #   image: zagaos/minio:2.0
       #   command:
       #   - /bin/sh
       #   - -c
       #   - |
-      #     mc alias set myminio http://localhost:9000 minioAdmin minio1234
-      #     mc admin config set myminio api web_cors="*"
+      #     sleep 10 && 
+      #     mc alias set minio http://minio:9000 minioAdmin minio1234 && 
+      #     mc mb minio/warehouse || echo 'source Bucket already exists';
+
       #   env:
       #   - name: MINIO_ROOT_USER
       #     value: "minioAdmin"

@@ -27,11 +27,11 @@ MINIO_VERSION="5.3.0"
 AIRFLOW_IMAGE="osclimate/airflow"
 AIRFLOW_TAG="2.9.4"
 
-MINIO_IMAGE="osclimate/minio"
-MINIO_TAG="1.0"
+MINIO_IMAGE="zagaos/minio"
+MINIO_TAG="2.0"
 
-TRINO_IMAGE="osclimate/trino"
-TRINO_TAG="1.0"
+TRINO_IMAGE="zagaos/trino"
+TRINO_TAG="2.0"
 
 ICEBERG_IMAGE="quay.io/zagaos/iceberg-custom-rest"
 ICEBERG_TAG="1.0"
@@ -274,6 +274,7 @@ deploy_dataproduct_ui(){
 
      echo "Deploying deploy_dataproduct_UI()..."
 
+    kubectl apply -f $CURRENT_DIR/deployment/dataproduct-catlog-ui/configmap.yaml -n $NAMESPACE 
     kubectl apply -f $CURRENT_DIR/deployment/dataproduct-catlog-ui/deployment.yaml -n $NAMESPACE 
     kubectl apply -f $CURRENT_DIR/deployment/dataproduct-catlog-ui/service.yaml -n $NAMESPACE 
 
@@ -282,8 +283,8 @@ deploy_dataproduct_ui(){
     # Wait for at least one Airflow pod to exist
     echo "Waiting for dataproduct UI pod to appear in namespace $NAMESPACE..."
 
-    DATA_PORT=5173
-    DATA_PORT_FWD=5173
+    DATA_PORT=8080
+    DATA_PORT_FWD=8080
 
     echo "Checking for running minio pod..."
     DATA_POD_NAME=$(kubectl get pods -n $NAMESPACE -l app=iceberg-catalog-ui -o jsonpath='{.items[0].metadata.name}')
@@ -391,8 +392,8 @@ create_pvc(){
 port_forward(){
 
   kubectl port-forward svc/airflow-webserver 8080:8080 -n osclimate & \
-  kubectl port-forward svc/trino-service 8081:8080 -n osclimate & \
-  kubectl port-forward svc/minio-service 9001:9001 -n osclimate $
+  kubectl port-forward svc/trino 8081:8080 -n osclimate & \
+  kubectl port-forward svc/minio 9001:9001 -n osclimate $
 }
 
 port_forward_airflow() {
@@ -424,7 +425,7 @@ delete_airflow(){
 delete_trino(){
   echo "Deleting Trino..."
   kubectl delete deployment trino -n $NAMESPACE
-  kubectl delete svc trino-service -n $NAMESPACE
+  kubectl delete svc trino -n $NAMESPACE
   kubectl delete configmap trino-config -n $NAMESPACE
 
 }
@@ -432,7 +433,7 @@ delete_trino(){
 delete_minio(){
   echo "Deleting Minio..."
   kubectl delete deployment minio -n $NAMESPACE
-  kubectl delete svc minio-service -n $NAMESPACE
+  kubectl delete svc minio -n $NAMESPACE
 
 }
 delete_dataproduct(){
@@ -487,13 +488,13 @@ main() {
                     ;;
                 all)
                     # load_airflow_image
-                    load_trino_image
+                    # load_trino_image
                     deploy_trino
-                    load_minio_image
+                    # load_minio_image
                     deploy_minio
-                    load_iceberg_image
+                    # load_iceberg_image
                     deploy_iceberg_helm
-                    load_data_product_image
+                    # load_data_product_image
                     deploy_dataproduct_api
                     deploy_dataproduct_ui
                     verify_deployment

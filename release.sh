@@ -2,13 +2,9 @@
 
 # Safeties on: https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
 set -euo pipefail
-# docker login quay.io -u '<username>' -p 'passpwrd'
 
-# DEFAULT_TAG=quay.io/osclimate/localairflow:1.2
-# DEFAULT_TAG=osclimate/trino:1.1
-AIRFLOW_TAG=osclimate/airflow:2.9.4
-TRINO_TAG=osclimate/trino:1.0
-MINIO_TAG=osclimate/minio:1.0
+TRINO_TAG=zagaos/trino:2.0
+MINIO_TAG=zagaos/minio:2.0
 # DEFAULT_TAG=osclimate/minio:1.0
 # TAG=${TAG:-$DEFAULT_TAG}
 
@@ -34,8 +30,8 @@ docker buildx build  \
     --load \
     .
 docker pull quay.io/zagaos/dataproduct-dashboard:latest
-docker pull quay.io/zagaos/dataproduct-dashboard:v9
-
+docker pull quay.io/zagaos/dataproduct-dashboard:v11
+``
 
 docker pull quay.io/zagaos/dataproduct-client-api:v3
 

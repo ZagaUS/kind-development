@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: trino
-        image: osclimate/trino:1.0
+        image: zagaos/trino:2.0
         ports:
         - containerPort: 8081 # Change the internal port to 8081
         env:
@@ -34,6 +34,12 @@ spec:
           value: "true" # Enable discovery for workers
         - name: NODE_SCHEDULER_INCLUDE_COORDINATOR
           value: "true" # Allow the coordinator to act as a worker
+        - name: AWS_ACCESS_KEY_ID
+          value: minioAdmin
+        - name: AWS_SECRET_ACCESS_KEY
+          value: minio1234
+        - name: AWS_REGION
+          value: us-east-1
         volumeMounts:
         - name: config-volume
           mountPath: /etc/trino # Mounts configuration files

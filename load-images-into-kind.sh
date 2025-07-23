@@ -10,9 +10,10 @@ NAMESPACE="dataproduct"
 KIND_CLUSTER_NAME="zaga-cluster"
 # Images to reload
 IMAGES=(
-  "osclimate/trino:1.0"
-  "osclimate/minio:1.0"
-  "quay.io/zagaos/dataproduct-dashboard:v9"
+  "zagaos/trino:2.0"
+  "zagaos/minio:2.0"
+  "quay.io/zagaos/dataproduct-dashboard:v11"
+  "quay.io/zagaos/dataproduct-dashboard:latest"
   "quay.io/zagaos/dataproduct-client-api:v3"
   "quay.io/zagaos/iceberg-custom-rest:1.0"
 
