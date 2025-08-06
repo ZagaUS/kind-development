@@ -17,7 +17,7 @@ spec:
       containers:
       - name: dataproduct-client-api
         image: quay.io/zagaos/dataproduct-client-api:v3
-        # command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+        command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
         # workingDir: /app
         ports:
         - containerPort: 8000

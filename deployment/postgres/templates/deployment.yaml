@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgres
+    spec:
+      securityContext:
+        fsGroup: 26  # Common for PostgreSQL (matches image UID/GID, adjust if needed)
+      containers:
+        - name: postgres
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRESQL_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: POSTGRESQL_PASSWORD
+              value: {{ .Values.postgres.password | quote }}
+            - name: POSTGRESQL_DATABASE
+              value: {{ .Values.postgres.database | quote }}
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/pgsql/data
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: pgdata
+          emptyDir: {}

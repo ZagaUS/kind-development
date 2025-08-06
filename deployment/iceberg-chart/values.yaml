@@ -22,3 +22,6 @@ env:
 service:
   type: ClusterIP
   port: 8181
+
+postgresql:
+  enabled: false

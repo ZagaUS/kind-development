@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Release.Name }}-rest
+  labels:
+    app: {{ .Release.Name }}-rest
+spec:
+  to:
+    kind: Service
+    name: {{ .Release.Name }}-rest
+  port:
+    targetPort: {{ .Values.service.port }}
+  tls:
+    termination: edge  # Or change to 'passthrough' or 'reencrypt' if needed
+  wildcardPolicy: None

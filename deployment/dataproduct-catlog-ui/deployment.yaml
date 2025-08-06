@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: iceberg-catalog-ui
-        image: quay.io/zagaos/dataproduct-dashboard:v9
+        image: quay.io/zagaos/dataproduct-dashboard:v12
         # command: [ "npm", "run", "dev" ]
         ports:
         - containerPort: 8080

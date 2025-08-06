@@ -1,0 +1,18 @@
+image:
+  repository: "quay.io/osclimate/postgresql-13"
+  tag: "1-101"
+
+postgres:
+  user: iceberg_user
+  password: iceberg_pass
+  database: iceberg_metadata
+
+service:
+  type: ClusterIP
+  port: 5432
+  nodePort: 5433  # Optional: used only if service.type is NodePort
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"

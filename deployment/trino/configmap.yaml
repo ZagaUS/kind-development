@@ -11,11 +11,17 @@ data:
     query.max-memory=1GB
     query.max-memory-per-node=512MB
     discovery.uri=http://trino:8081
+
   jvm.config: |
     -server
     -Xmx4G
     -XX:+UseG1GC
     -XX:MaxGCPauseMillis=200
+
+  node.properties: |
+    node.environment=development
+    node.id=trino-node
+    node.data-dir=/var/trino
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -28,7 +34,4 @@ data:
     iceberg.rest-catalog.uri=http://iceberg-rest:8181
     iceberg.rest-catalog.warehouse=s3://warehouse/
     iceberg.file-format=PARQUET
-    hive.s3.endpoint=http://minio:9000
-    hive.s3.path-style-access=true
-    #hive.s3.aws-access-key=admin
-    #hive.s3.aws-secret-key=password
+

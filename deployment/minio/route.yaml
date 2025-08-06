@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: minio
+  namespace: dataproduct  # Replace with your namespace if different
+spec:
+  to:
+    kind: Service
+    name: minio           # This should match your MinIO Service name
+  port:
+    targetPort: 9000      # This should match the containerPort in your Deployment
+  tls:
+    termination: edge     # Use "edge" for TLS termination by OpenShift
+  wildcardPolicy: None
