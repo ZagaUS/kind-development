@@ -1,5 +1,5 @@
 apiVersion: v2
-name: iceberg-chart
+name: iceberg
 description: Helm chart for Iceberg REST and Trino
 type: application
 version: 0.1.0
